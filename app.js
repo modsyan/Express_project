@@ -4,31 +4,21 @@ const app = express();
 
 app.use(express.json());
 
-app.get("/", (req, res) => {
-  res.status(200).send("Hello from Server Side!");
-});
-app.post("/", (req, res) => {
-  res.status(200).send("you can post to this url now...");
-});
-
 const tours = JSON.parse(
   fs.readFileSync(`${__dirname}/dev-data/data/tours-simple.json`)
 );
 
-app.get("/api/v1/tours/", (req, res) => {
+const getTours = (req, res) => {
   res.status(200).json({
     status: "success",
     data: {
       tours,
     },
   });
-});
+};
 
-// ? for optional parameters /api/v1/tours/:id/:name?/:age?/
-
-app.get("/api/v1/tours/:id", (req, res) => {
+const getTour = (req, res) => {
   const tour = tours.find((el) => el.id == req.params.id);
-
   if (!tour) {
     res.status(404).json({
       status: "fail",
@@ -36,20 +26,18 @@ app.get("/api/v1/tours/:id", (req, res) => {
       Descriptions: "out of range id.",
     });
   }
-
   res.status(200).json({
     status: "success",
     data: {
       tour,
     },
   });
-});
+};
 
-app.post("/api/v1/tours/", (req, res) => {
+const createTour = (req, res) => {
   const newId = tours[tours.length - 1].id + 1;
   let newTour = Object.assign({ id: newId }, req.body);
   tours.push(newTour);
-
   fs.writeFile(
     `${__dirname}/dev-data/data/tours-simple.json`,
     JSON.stringify(tours),
@@ -57,9 +45,9 @@ app.post("/api/v1/tours/", (req, res) => {
       res.status(201).json(newTour);
     }
   );
-});
+};
 
-app.patch("/api/v1/tours/:id", (req, res) => {
+const UpdateTour = (req, res) => {
   if (req.params.id > tours.length) {
     res.status(404).json({
       status: "fail",
@@ -74,36 +62,9 @@ app.patch("/api/v1/tours/:id", (req, res) => {
       tour: "Updated <SUCCESS>",
     },
   });
-});
+};
 
-/** NEEDED TO MAINTAINS */
-// app.patch("/api/v1/:id", (req, res) => {
-//   // search if the id here
-//   const updatedTour = tours.find((el) => el.id == req.params.id);
-//   if (!updatedTour) {
-//     res.status(404).json({
-//       status: "fail",
-//       message: "Invalid ID",
-//       Descriptions: "out of range id.",
-//     });
-//   }
-//   tours
-//   const updateTour = res.body;
-//   fs.writeFile(
-//     `${__dirname}/dev-data/data/tours-simple.json`,
-//     JSON.stringify(tours),
-//   );
-
-//   res.status(200).json({
-//     status:"success",
-//     message:"Updated successfully",
-//     data:{
-//       res.body;
-//     }
-//   })
-// });
-
-app.delete("/api/v1/tours/:id", (req, res) => {
+const deleteTour = (req, res) => {
   if (req.params.id > tours.length) {
     res.status(404).json({
       status: "fail",
@@ -115,7 +76,13 @@ app.delete("/api/v1/tours/:id", (req, res) => {
     status: "success",
     data: null,
   });
-});
+};
+
+app.get("/api/v1/tours/", getTours());
+app.get("/api/v1/tours/:id", getTour());
+app.post("/api/v1/tours/", createTour());
+app.patch("/api/v1/tours/:id", UpdateTour());
+app.delete("/api/v1/tours/:id", deleteTour());
 
 const port = 3200;
 app.listen(port, () => {
