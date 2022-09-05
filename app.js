@@ -4,6 +4,13 @@ const app = express();
 
 app.use(express.json());
 
+app.get("/", (req, res) => {
+  res.status(200).send("Hello from Server Side!");
+});
+app.post("/", (req, res) => {
+  res.status(200).send("you can post to this url now...");
+});
+
 const tours = JSON.parse(
   fs.readFileSync(`${__dirname}/dev-data/data/tours-simple.json`)
 );
