@@ -9,6 +9,7 @@ app.use(morgan("dev"));
 
 app.use(express.json());
 
+
 app.use((req, res, next) => {
   console.log("Hello from middle ware");
   next();
@@ -139,20 +140,33 @@ const deleteUser = (req, res) => {
 
 // [3] Routes
 
-app.route("/api/v1/tours/").get(getTours).post(createTour);
+const tourRouter = express.Router();
+const userRouter = express.Router();
 
-app
-  .route("/api/v1/tours/:id")
+tourRouter
+  .route('/')
+  .get(getTours)
+  .post(createTour);
+
+tourRouter
+  .route("/:id")
   .get(getTour)
   .patch(UpdateTour)
   .delete(deleteTour);
 
-app.route("/api/v1/users/").get(getAllUsers).post(createNewUser);
-app
-  .route("/api/v1/users/:id")
+userRouter
+  .route("/")
+  .get(getAllUsers)
+  .post(createNewUser);
+
+userRouter
+  .route(":id")
   .get(getUser)
   .patch(updateUser)
   .delete(deleteUser);
+
+app.use('/api/v1/tours/', tourRouter);
+app.use('/api/v1/users/', userRouter);
 
 // [4] Starting the server
 
