@@ -4,7 +4,7 @@ const userRouter = require('./routes/userRoute');
 const tourRouter = require('./routes/tourRoute');
 const app = express();
 
-// [1] middleware
+// [1] middleware /version -> applied to all requrestes
 app.use(morgan("dev"));
 app.use(express.json());
 
@@ -19,12 +19,10 @@ app.use((req, res, next) => {
   next();
 });
 
-// [3] Routes
+// [3] Routes // middlewares appliced only for spcifec url
 app.use('/api/v1/tours/', tourRouter);
 app.use('/api/v1/users/', userRouter);
 
 // [4] Starting the server
-const port = 3200;
-app.listen(port, () => {
-  console.log(`App Running at ${port} Port Number...`);
-});
+
+module.exports = app;
