@@ -2,15 +2,23 @@ const Tour = require('../model/tourModel');
 
 exports.getTours = async (req, res) => {
   try {
+    //  Build query
+    // 1) basic filter
     const queryObj = { ...req.query };
     const excludedFields = ['fields', 'limit', 'sort', 'page'];
     excludedFields.forEach((el) => delete queryObj[el]);
-    
-    // my note -> what is the purpose of exclude elements ??
-    // allow specific fillers not the opposite
+    // console.log(queryObj, req.query);
+    // my note -> what is the purpose of exclude elements ?? allow specific fillers not the opposite
 
-    console.log(queryObj, req.query);
-    const tours = await Tour.find(req.query);
+    // 2) advance filtering
+
+    let queryModified = JSON.stringify(queryObj).replace(
+      /\b(gte|gt|lte|lt)\b/g,
+      (match) => `$${match}`
+    );
+    queryModified = JSON.parse(queryModified);
+
+    const query = Tour.find(queryModified);
 
     // mongoose gives as a sql query like that
     // const tours = await Tour.find()
@@ -18,6 +26,10 @@ exports.getTours = async (req, res) => {
     //   .equals(5)
     //   .where('difficultly')
     //   .equals('easy');
+
+    // 2] Execute query
+    const tours = await query;
+    // 3] sent response
 
     res.status(200).json({
       status: 'success',
