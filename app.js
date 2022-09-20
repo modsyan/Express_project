@@ -5,9 +5,8 @@ const tourRouter = require('./routes/tourRoute');
 
 const app = express();
 
-// [1] middleware /version -> applied to all requrestes
+// [1] middleware /version -> applied to all requested
 
-console.log(process.env.NODE_ENV);
 if (process.env.NODE_ENV === 'development') {
   app.use(morgan('dev'));
 }
@@ -16,17 +15,12 @@ app.use(express.json());
 app.use(express.static(`${__dirname}/public`));
 
 app.use((req, res, next) => {
-  console.log('Hello from middle ware');
-  next();
-});
-
-app.use((req, res, next) => {
   req.requestTime = new Date().toISOString();
   console.log(req.requestTime);
   next();
 });
 
-// [3] Routes // middlewares appliced only for spcifec url
+// [3] Routes // middleware applied only for specific URL
 app.use('/api/v1/tours/', tourRouter);
 app.use('/api/v1/users/', userRouter);
 

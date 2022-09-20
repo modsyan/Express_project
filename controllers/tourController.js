@@ -1,87 +1,111 @@
-const fs = require('fs');
+const Tour = require('../model/tourModel');
 
-const tours = JSON.parse(
-  fs.readFileSync(`${__dirname}/../dev-data/data/tours-simple.json`)
-);
+exports.getTours = async (req, res) => {
+  try {
+    const queryObj = { ...req.query };
+    const excludedFields = ['fields', 'limit', 'sort', 'page'];
+    excludedFields.forEach((el) => delete queryObj[el]);
+    
+    // my note -> what is the purpose of exclude elements ??
+    // allow specific fillers not the opposite
 
-exports.checkIDTravial = (req, res, next, val) => {
-  if (val * 1 > tours.length) {
-    return res.status(404).json({
-      status: 'faild',
-      message: 'Not Found ID',
+    console.log(queryObj, req.query);
+    const tours = await Tour.find(req.query);
+
+    // mongoose gives as a sql query like that
+    // const tours = await Tour.find()
+    //   .where('duration')
+    //   .equals(5)
+    //   .where('difficultly')
+    //   .equals('easy');
+
+    res.status(200).json({
+      status: 'success',
+      result: tours.length,
+      data: {
+        tours,
+      },
+    });
+  } catch (err) {
+    res.status(404).json({
+      status: 'fails',
+      message: err,
     });
   }
-  next();
 };
 
-// @ts-ignore
-exports.checkID = (req, res, next, val) => {
-  if (!tours.some((e) => e.id == val)) {
-    return res.status(404).json({
-      status: 'fail',
-      message: 'Invalid ID',
-      Descriptions: 'out of range id.',
-    });
-  }
-  next();
-};
-
-exports.checkBody = (req, res, next) => {
-  if (!req.body.name || !req.body.price) {
-    return res.status(404).json({
-      status: 'fail',
-      message: 'invaild properties, body is wrong',
-    });
-  }
-  next();
-};
-
-exports.getTours = (req, res) => {
-  res.status(200).json({
-    status: 'success',
-    requestedAt: req.requestTime,
-    data: {
-      tours,
-    },
-  });
-};
-
-exports.getTour = (req, res) => {
-  const tour = tours.find((el) => el.id === req.params.id * 1);
-  res.status(200).json({
-    status: 'success',
-    data: {
+exports.getTour = async (req, res) => {
+  try {
+    const tour = await Tour.findOne({ _id: req.params.id });
+    res.status(200).json({
+      status: 'success',
       tour,
-    },
-  });
+    });
+  } catch (err) {
+    res.status(400).json({
+      status: 'fails',
+      message: err,
+    });
+  }
 };
 
-exports.createTour = (req, res) => {
-  const newId = tours[tours.length - 1].id + 1;
-  const newTour = Object.assign({ id: newId }, req.body);
-
-  tours.push(newTour);
-  fs.writeFile(
-    `${__dirname}/../dev-data/data/tours-simple.json`,
-    JSON.stringify(tours),
-    (err) => {
-      res.status(201).json(newTour);
-    }
-  );
+exports.createTour = async (req, res) => {
+  try {
+    const newTour = await Tour.create(req.body);
+    res.status(200).json({
+      status: 'success',
+      data: {
+        tour: newTour,
+      },
+    });
+  } catch (err) {
+    res.status(400).json({
+      status: 'fails',
+      message: err,
+    });
+  }
 };
 
-exports.UpdateTour = (req, res) => {
-  res.status(200).json({
-    status: 'success',
-    data: {
-      tour: 'Updated <SUCCESS>',
-    },
-  });
+exports.UpdateTour = async (req, res) => {
+  try {
+    // const statusMsg = await Tour.updateOne(
+    //   { _id: req.params.id },
+    //   { $set: { ...req.body } }
+    // );
+    // const updatedTour = await Tour.findOne({ _id: req.params.id });
+    // to save time and bandwidth use only updateOne() but if u want to return updated doc use findOneAndUpdate() method easier of the left
+
+    const updatedTour = await Tour.findOneAndUpdate(req.params.id, req.body, {
+      new: true,
+      runValidators: true,
+    });
+
+    res.status(200).json({
+      status: 'success',
+      data: {
+        tour: updatedTour,
+      },
+    });
+  } catch (err) {
+    res.status(400).json({
+      status: 'fail',
+      message: err,
+    });
+  }
 };
 
-exports.deleteTour = (req, res) => {
-  res.status(204).json({
-    status: 'success',
-    data: null,
-  });
+exports.deleteTour = async (req, res) => {
+  try {
+    // await Tour.deleteOne({ _id: req.params.id });
+    await Tour.findOneAndDelete(req.params.id);
+    res.status(204).json({
+      status: 'success',
+      data: null,
+    });
+  } catch (err) {
+    res.status(400).json({
+      status: 'fails',
+      data: err,
+    });
+  }
 };
