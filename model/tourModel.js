@@ -3,7 +3,10 @@ const mongoose = require('mongoose');
 const tourSchema = new mongoose.Schema({
   name: {
     type: String,
-    required: [true, "Name is Missing, The Name Used as An Identifier with id's"],
+    required: [
+      true,
+      "Name is Missing, The Name Used as An Identifier with id's",
+    ],
     unique: true,
     trim: true,
   },
@@ -13,7 +16,7 @@ const tourSchema = new mongoose.Schema({
   },
   maxGroupSize: {
     type: Number,
-    required: [true, 'A tour must have a groub size'],
+    required: [true, 'A tour must have a group size'],
   },
   difficulty: {
     type: String,
@@ -26,36 +29,36 @@ const tourSchema = new mongoose.Schema({
   },
   rattingQuantity: {
     type: Number,
-    defualt: 0,
+    default: 0,
   },
   price: {
     type: Number,
     required: [true, 'The Price is Missing'],
   },
-  priceDisscount: {
-    type: Number
+  priceDiscount: {
+    type: Number,
   },
   summary: {
     type: String,
     trim: true,
-    required: [true, 'A tour must have a discription'],
+    required: [true, 'A tour must have a description'],
   },
-  discription: {
+  description: {
     type: String,
     trim: true,
   },
   imageCover: {
     type: String,
-    required: [true, "A tour must have a cover"],
+    required: [true, 'A tour must have a cover'],
   },
-  imagese: [String], // array of strings [datayype here of the array]
+  images: [String], // array of strings [datatype here of the array]
   createdAt: {
     type: Date,
     default: Date.now(),
+    select: false,
   },
   startDates: [Date],
 });
-
 
 const Tour = mongoose.model('Tour', tourSchema);
 

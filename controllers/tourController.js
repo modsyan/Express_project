@@ -1,35 +1,33 @@
 const Tour = require('../model/tourModel');
+const APIFeatures = require('../utils/apiFeatures');
+
+
+// http://127.0.0.1:3200/api/v1/tours?sort=price,-rattingAverage&field=name,rattingAverage,duractoin,difficulty,price&limit=5
+exports.top5cheap = (req, res, next) => {
+  req.query = {
+    ...req.query,
+    sort: 'price,-rattingAverage',
+    limit: '5',
+    field: 'name,rattingAverage,duration,difficulty,price',
+  };
+  next();
+};
 
 exports.getTours = async (req, res) => {
   try {
-    //  Build query
-    // 1) basic filter
-    const queryObj = { ...req.query };
-    const excludedFields = ['fields', 'limit', 'sort', 'page'];
-    excludedFields.forEach((el) => delete queryObj[el]);
-    // console.log(queryObj, req.query);
-    // my note -> what is the purpose of exclude elements ?? allow specific fillers not the opposite
 
-    // 2) advance filtering
+    const features = new APIFeatures(Tour.find(), req.query).filter();
+    // console.log(features.query);
 
-    let queryModified = JSON.stringify(queryObj).replace(
-      /\b(gte|gt|lte|lt)\b/g,
-      (match) => `$${match}`
-    );
-    queryModified = JSON.parse(queryModified);
+    // const features = new APIFeatures(Tour.fine(), req.query).filter();
+    // .filter()
+    // .sort()
+    // .limit()
+    // .paginate();
 
-    const query = Tour.find(queryModified);
+    const tours = await features.query;
 
-    // mongoose gives as a sql query like that
-    // const tours = await Tour.find()
-    //   .where('duration')
-    //   .equals(5)
-    //   .where('difficultly')
-    //   .equals('easy');
-
-    // 2] Execute query
-    const tours = await query;
-    // 3] sent response
+    // Sent response
 
     res.status(200).json({
       status: 'success',
