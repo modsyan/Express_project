@@ -1,39 +1,30 @@
-
 class APIFeatures {
-  constructor(query, queryStr) { // taking the whole requset
-    this.queryStr = reqQuery;
-    this.queryStr = queryStr;
+  constructor(query, queryString) {
+    this.query = query;
+    this.queryString = queryString;
   }
 
-  // filter() {
-  //   const queryObj = { ...this.reqQuery };
-  //   const excludedFields = ['page', 'sort', 'limit', 'fields'];
-  //   excludedFields.forEach(el => delete queryObj[el]);
-
-  //   // 1B) Advanced filtering
-  //   let queryStr = JSON.stringify(queryObj);
-  //   req = queryStr.replace(/\b(gte|gt|lte|lt)\b/g, match => `$${match}`);
-
-  //   this.query = this.query.find(JSON.parse(queryStr));
-
-  //   return this;
-  // }
-
   filter() {
-    const queryObj = { ...this.queryStr };
+    // filtering the query.params first in a new object then
+    const queryObj = { ...this.queryString };
     const excludedFields = ['fields', 'limit', 'sort', 'page'];
     excludedFields.forEach((el) => delete queryObj[el]);
-
-    this.queryStr = JSON.parse(
-      JSON.stringify(queryObj).replace(/\b(gte|gt|lte|lt)\b/g, (match) => `$${match}`)
+    const queryFiltered = JSON.parse(
+      JSON.stringify(queryObj).replace(
+        /\b(gte|gt|lte|lt)\b/g,
+        (match) => `$${match}`
+      )
     );
-    this.query = query.find(this.queryStr);
+
+    //  then get the query upon last filtration
+    this.query = this.query.find(queryFiltered);
+
     return this;
   }
 
   sort() {
-    const sortCarterias = reqQuery.sort
-      ? this.queryStr.sort.split.split(',').join(' ')
+    const sortFields = this.queryString.sort
+      ? this.queryString.sort.split.split(',').join(' ')
       : '-createdAt';
 
     this.query = this.query.sort(sortCarterias);
@@ -41,22 +32,19 @@ class APIFeatures {
   }
 
   limitFields() {
-    const FieldsSelcted = this.queryStr.field
-      ? this.queryStr.field.split(',').join(' ')
-      : '-__v'; // removed from the query 
-
-    this.query = this.query.select(FieldsSelcted);
+    const FieldsSelected = this.queryString.field
+      ? this.queryString.field.split(',').join(' ')
+      : '-__v'; // removed from the query
+    this.query = this.query.select(FieldsSelected);
     return this;
   }
 
   paginate() {
-    const page = (this.queryStr.page * 1) - 1 || 0;
-    const limit = this.queryStr.limit * 1 || 100;
+    const page = this.queryString.page * 1 - 1 || 0;
+    const limit = this.queryString.limit * 1 || 100;
     this.query = this.query.skip(page * limit).limit(limit);
-    // error handling here to avoid accessing page not exsist <---- remmberr
     return this;
   }
-
 }
 
 module.exports = APIFeatures;
