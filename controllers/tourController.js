@@ -1,7 +1,6 @@
 const Tour = require('../model/tourModel');
 const APIFeatures = require('../utils/apiFeatures');
 
-
 // http://127.0.0.1:3200/api/v1/tours?sort=price,-rattingAverage&field=name,rattingAverage,duractoin,difficulty,price&limit=5
 exports.top5cheap = (req, res, next) => {
   req.query = {
@@ -15,19 +14,13 @@ exports.top5cheap = (req, res, next) => {
 
 exports.getTours = async (req, res) => {
   try {
-
-    const features = new APIFeatures(Tour.find(), req.query).filter();
-    // console.log(features.query);
-
-    // const features = new APIFeatures(Tour.fine(), req.query).filter();
-    // .filter()
-    // .sort()
-    // .limit()
-    // .paginate();
+    const features = new APIFeatures(Tour.find(), req.query)
+      .filter()
+      .sort()
+      .limitFields()
+      .paginate();
 
     const tours = await features.query;
-
-    // Sent response
 
     res.status(200).json({
       status: 'success',

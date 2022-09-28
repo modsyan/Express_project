@@ -15,7 +15,6 @@ class APIFeatures {
         (match) => `$${match}`
       )
     );
-
     //  then get the query upon last filtration
     this.query = this.query.find(queryFiltered);
 
@@ -23,11 +22,10 @@ class APIFeatures {
   }
 
   sort() {
-    const sortFields = this.queryString.sort
-      ? this.queryString.sort.split.split(',').join(' ')
+    const sortBy = this.queryString.sort
+      ? this.queryString.sort.split(',').join(' ')
       : '-createdAt';
-
-    this.query = this.query.sort(sortCarterias);
+    this.query = this.query.sort(sortBy);
     return this;
   }
 
