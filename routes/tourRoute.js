@@ -10,6 +10,8 @@ router
   .route('/top-5-cheap')
   .get(tourController.top5cheap, tourController.getTours);
 
+router.route('/tours-stats').get(tourController.getToursStats);
+
 router.route('/').get(tourController.getTours).post(tourController.createTour);
 
 router
