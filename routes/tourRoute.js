@@ -11,6 +11,7 @@ router
   .get(tourController.top5cheap, tourController.getTours);
 
 router.route('/tours-stats').get(tourController.getToursStats);
+router.route('/get-monthly-plan/:year').get(tourController.getMonthlyPlan);
 
 router.route('/').get(tourController.getTours).post(tourController.createTour);
 
